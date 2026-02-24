@@ -11,6 +11,14 @@
       <div class="banner">
         Verification required: confirm details before advising residents or issuing guidance.
       </div>
+      <section class="howto panel">
+        <h2>How to use</h2>
+        <ul class="howto-list">
+          <li>Pick intent, use-case, and scenario to tailor keywords.</li>
+          <li>Generate keywords, then run a search and shortlist high-impact items.</li>
+          <li>Use the Action Plan and brief to coordinate review and next steps.</li>
+        </ul>
+      </section>
       <header class="header">
         <div>
           <div class="eyebrow">PA Navigator</div>
@@ -82,7 +90,7 @@
                       Time-sensitive
                     </label>
                   </div>
-                  <button id="buildQuestionBtn" class="ghost">Build question</button>
+                  <button id="buildQuestionBtn" class="ghost">Generate keywords</button>
                 </div>
               </div>
               <div class="question-row">
@@ -92,6 +100,7 @@
                   <button id="resetBtn" class="ghost">Clear / Reset</button>
                 </div>
               </div>
+              <div id="keywordDisplay" class="keywords"></div>
               <div class="suggestions" id="suggestions"></div>
 
               <div class="filters">
@@ -137,6 +146,9 @@
               <div class="step-title">Step 3 · Results</div>
               <div id="status" class="status"></div>
               <div id="results" class="results"></div>
+              <div id="noResultsHelp" class="helper hidden">
+                Why no results? Try increasing lookback days, changing document type, or simplifying keywords.
+              </div>
             </div>
           </div>
         </div>
@@ -181,7 +193,13 @@
         </div>
         <div id="resourceList" class="resource-list"></div>
       </section>
+      <section class="panel notes">
+        <div class="builder-title">Session notes</div>
+        <textarea id="sessionNotes" class="notes-input" placeholder="Optional notes to include in export..."></textarea>
+      </section>
     </main>
+
+    <div id="toast" class="toast hidden"></div>
 
     <div id="briefModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="briefTitle">
       <div class="modal-content">

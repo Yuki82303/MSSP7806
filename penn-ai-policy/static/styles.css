@@ -26,6 +26,24 @@ body {
   padding: 28px 20px 60px;
 }
 
+.howto {
+  margin-bottom: 16px;
+}
+
+.howto h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.howto-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
 .banner {
   background: #f7efe6;
   border: 1px solid #e3d5c6;
@@ -249,6 +267,30 @@ label {
   margin: 8px 0 12px;
 }
 
+.status.error {
+  background: #fbe9e6;
+  border: 1px solid #f0c9c1;
+  color: #8a3b1f;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.keywords {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.helper {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
 .loading .status::after {
   content: " Loading...";
   color: var(--accent-2);
@@ -408,6 +450,30 @@ label {
   font-size: 14px;
   display: grid;
   gap: 8px;
+}
+
+.notes-input {
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #1e5b4f;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  z-index: 60;
 }
 
 .resources {

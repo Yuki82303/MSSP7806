@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse, urlencode
 from urllib.request import urlopen, Request
+from urllib.error import HTTPError, URLError
+from json import JSONDecodeError
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -95,6 +97,7 @@ class Handler(BaseHTTPRequestHandler):
             "document_number",
             "agency_names",
             "html_url",
+            "type",
         ]
         for f in fields:
             api_params.setdefault("fields[]", [])
@@ -107,8 +110,17 @@ class Handler(BaseHTTPRequestHandler):
             with urlopen(req, timeout=10) as resp:
                 raw = resp.read().decode("utf-8")
                 data = json.loads(raw)
+        except HTTPError as e:
+            _send_json(self, 502, {"ok": False, "error": f"Upstream HTTP error: {e.code}"})
+            return
+        except URLError as e:
+            _send_json(self, 502, {"ok": False, "error": f"Upstream connection error: {e.reason}"})
+            return
+        except JSONDecodeError:
+            _send_json(self, 502, {"ok": False, "error": "Upstream response was not valid JSON"})
+            return
         except Exception as e:
-            _send_json(self, 502, {"error": "Upstream request failed", "detail": str(e)})
+            _send_json(self, 502, {"ok": False, "error": f"Upstream request failed: {str(e)}"})
             return
 
         results = data.get("results", [])
@@ -120,9 +132,10 @@ class Handler(BaseHTTPRequestHandler):
                 "document_number": item.get("document_number"),
                 "agency_names": item.get("agency_names"),
                 "html_url": item.get("html_url"),
+                "type": item.get("type"),
             })
 
-        _send_json(self, 200, {"count": len(filtered), "results": filtered})
+        _send_json(self, 200, {"ok": True, "count": len(filtered), "results": filtered})
 
     def log_message(self, format, *args):
         # Keep output clean

@@ -17,6 +17,10 @@ const searchBtn = document.getElementById('searchBtn');
 const resetBtn = document.getElementById('resetBtn');
 const statusEl = document.getElementById('status');
 const resultsEl = document.getElementById('results');
+const keywordDisplayEl = document.getElementById('keywordDisplay');
+const noResultsHelpEl = document.getElementById('noResultsHelp');
+const sessionNotesEl = document.getElementById('sessionNotes');
+const toastEl = document.getElementById('toast');
 const triageListEl = document.getElementById('triageList');
 const notifyListEl = document.getElementById('notifyList');
 const nextListEl = document.getElementById('nextList');
@@ -445,6 +449,41 @@ const QUALIFIER_PLAN = {
   }
 };
 
+const STOPWORDS = new Set([
+  'a','an','the','and','or','but','if','then','than','with','for','to','of','in','on','at','by',
+  'is','are','was','were','be','being','been','do','does','did','doing','should','would','could',
+  'we','us','our','you','your','they','their','it','this','that','these','those','what','which','how',
+  'when','where','why','who','whom','about','into','from','as','not','no','yes','any','all','new',
+  'recent','latest','update','updates','rule','rules','notice','notices','document','documents'
+]);
+
+const INTENT_KEYWORDS = {
+  policy: ['policy', 'guidance', 'rulemaking'],
+  eligibility: ['eligibility', 'benefits', 'access'],
+  documents: ['notice', 'rule', 'guidance'],
+  nextsteps: ['compliance', 'timeline', 'implementation']
+};
+
+const USECASE_KEYWORDS = {
+  resident: ['intake', 'forms', 'eligibility', 'services'],
+  safetynet: ['medicaid', 'snap', 'tanf', 'benefits'],
+  procurement: ['procurement', 'vendor', 'contract', 'oversight']
+};
+
+const SCENARIO_KEYWORDS = {
+  'service-changes': ['services', 'intake', 'forms'],
+  'digital-access': ['website', 'portal', 'accessibility', 'digital'],
+  'eligibility-shifts': ['eligibility', 'renewal', 'recertification'],
+  'program-integrity': ['fraud', 'verification', 'overpayment'],
+  'ai-vendor-risk': ['algorithm', 'ai', 'vendor', 'transparency'],
+  'compliance-audit': ['audit', 'inspection', 'compliance'],
+  policy: ['policy', 'guidance', 'rulemaking'],
+  benefits: ['eligibility', 'benefits', 'access'],
+  procurement: ['procurement', 'vendor', 'contract'],
+  civilrights: ['discrimination', 'equal', 'title vi', 'civil rights'],
+  privacy: ['privacy', 'security', 'data']
+};
+
 const RESOURCE_DIRECTORY = [
   {
     category: 'Policy & Legal',
@@ -580,6 +619,7 @@ let allowScenarioDefaults = true;
 const FEEDBACK_KEY = 'pa_navigator_feedback_v1';
 const SHORTLIST_KEY = 'pa_navigator_shortlist_v1';
 const SETTINGS_KEY = 'pa_navigator_settings_v1';
+const SESSION_KEY = 'pa_navigator_session_v1';
 
 const detectedTags = (title = '') => {
   const t = title.toLowerCase();
@@ -686,6 +726,8 @@ const buildQuestionFromSituation = () => {
   if (qualifiers.includes('time_sensitive')) parts.push('Prioritize time-sensitive deadlines.');
   questionEl.value = parts.join(' ');
   renderSuggestions();
+  const { keywords } = extractKeywords(questionEl.value);
+  showKeywords(keywords);
   updateActionPlan(lastTags);
   persistSettings();
 };
@@ -712,6 +754,60 @@ const renderSuggestions = () => {
     });
     suggestionsEl.appendChild(b);
   }
+};
+
+const normalizeText = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const getDerivedKeywords = () => {
+  const intentKeys = INTENT_KEYWORDS[currentIntent] || [];
+  const usecaseKeys = USECASE_KEYWORDS[currentUseCase] || [];
+  const scenario = getScenario();
+  const scenarioKeys = scenario ? (SCENARIO_KEYWORDS[scenario.id] || []) : [];
+  const situationKeys = SCENARIO_KEYWORDS[situationScenarioEl.value] || [];
+  const combined = [...intentKeys, ...usecaseKeys, ...scenarioKeys, ...situationKeys];
+  const uniq = [...new Set(combined.filter(Boolean))];
+  return uniq.slice(0, 4);
+};
+
+const extractKeywords = (text) => {
+  const normalized = normalizeText(text || '');
+  const terms = normalized.split(' ').filter((t) => t && !STOPWORDS.has(t));
+  const counts = new Map();
+  for (const t of terms) {
+    counts.set(t, (counts.get(t) || 0) + 1);
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  const top = sorted.map(([t]) => t).slice(0, 8);
+  const derived = getDerivedKeywords();
+  const merged = [...new Set([...top, ...derived])];
+  return {
+    keywords: merged.slice(0, 10),
+    derived
+  };
+};
+
+const showKeywords = (keywords) => {
+  if (!keywords.length) {
+    keywordDisplayEl.textContent = '';
+    return;
+  }
+  keywordDisplayEl.textContent = `Search keywords: ${keywords.join(', ')}`;
+};
+
+const showError = (message) => {
+  statusEl.textContent = message;
+  statusEl.classList.add('error');
+  noResultsHelpEl.classList.add('hidden');
+};
+
+const clearError = () => {
+  statusEl.classList.remove('error');
 };
 
 const updateActionPlan = (tags) => {
@@ -847,10 +943,21 @@ const renderResources = (filterText = '') => {
       link.target = '_blank';
       link.rel = 'noopener';
       link.textContent = 'Open';
+      link.addEventListener('click', () => recordClick(link.href));
       const useBtn = document.createElement('button');
       useBtn.type = 'button';
       useBtn.textContent = 'Use this resource';
       useBtn.addEventListener('click', () => appendResourceSteps(r));
+      useBtn.addEventListener('click', async () => {
+        window.open(r.url, '_blank', 'noopener');
+        try {
+          await navigator.clipboard.writeText(r.url);
+          showToast('Link opened + copied');
+        } catch {
+          showToast('Link opened');
+        }
+        recordClick(r.url);
+      });
       actions.appendChild(link);
       actions.appendChild(useBtn);
       card.appendChild(title);
@@ -864,12 +971,15 @@ const renderResources = (filterText = '') => {
 
 const renderResults = (items) => {
   resultsEl.innerHTML = '';
+  clearError();
+  noResultsHelpEl.classList.add('hidden');
   if (!items.length) {
     statusEl.textContent = 'No results found for the selected window.';
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.textContent = 'Try expanding the lookback window, changing the document type, or refining your query.';
     resultsEl.appendChild(empty);
+    noResultsHelpEl.classList.remove('hidden');
     updateActionPlan([]);
     return;
   }
@@ -888,6 +998,7 @@ const renderResults = (items) => {
     link.target = '_blank';
     link.rel = 'noopener';
     link.textContent = item.title || 'Untitled document';
+    link.addEventListener('click', () => recordClick(link.href));
     title.appendChild(link);
 
     const meta = document.createElement('div');
@@ -996,6 +1107,7 @@ const setShortlist = (item, isHighImpact) => {
     delete data[id];
   }
   saveShortlist(data);
+  updateSession({ shortlisted_items: Object.values(data) });
   renderShortlist();
   updateActionPlan(lastTags);
 };
@@ -1019,6 +1131,7 @@ const renderShortlist = () => {
     open.rel = 'noopener';
     open.textContent = 'Open';
     open.style.marginLeft = '6px';
+    open.addEventListener('click', () => recordClick(open.href));
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.textContent = 'Remove';
@@ -1174,6 +1287,7 @@ const applyFilters = () => {
 
   lastFiltered = items;
   renderResults(items);
+  updateSession({ results: items });
 };
 
 const score = (item, query) => {
@@ -1187,6 +1301,23 @@ const score = (item, query) => {
   return s;
 };
 
+const fetchResults = async (query, lookback, maxResults) => {
+  const params = new URLSearchParams({
+    q: query,
+    lookback_days: lookback,
+    max_results: maxResults
+  });
+  const res = await fetch(`/api/search?${params.toString()}`);
+  if (!res.ok) {
+    return { ok: false, error: `Server error: ${res.status}` };
+  }
+  const data = await res.json();
+  if (data.ok === false) {
+    return { ok: false, error: data.error || 'Upstream error' };
+  }
+  return { ok: true, results: data.results || [] };
+};
+
 const doSearch = async () => {
   const q = questionEl.value.trim();
   const lookback = lookbackEl.value || '30';
@@ -1196,25 +1327,51 @@ const doSearch = async () => {
   resultsEl.innerHTML = '';
   searchBtn.disabled = true;
   document.body.classList.add('loading');
+  clearError();
 
   try {
-    const useHint = USE_CASES[currentUseCase].hint;
-    const query = q ? `${q} ${useHint}` : useHint;
-    const params = new URLSearchParams({
-      q: query,
-      lookback_days: lookback,
-      max_results: maxResults
-    });
-    const res = await fetch(`/api/search?${params.toString()}`);
-    if (!res.ok) {
-      throw new Error(`Server error: ${res.status}`);
+    const { keywords, derived } = extractKeywords(q);
+    const searchKeywords = keywords.length ? keywords : derived;
+    showKeywords(searchKeywords);
+    if (!searchKeywords.length) {
+      showError('Please add a few keywords or use the Situation Builder.');
+      return;
     }
-    const data = await res.json();
-    lastResults = data.results || [];
+
+    const query = searchKeywords.join(' ');
+    let response = await fetchResults(query, lookback, maxResults);
+    if (!response.ok) {
+      showError(response.error);
+      return;
+    }
+
+    if (response.results.length === 0 && derived.length) {
+      const fallbackQuery = derived.join(' ');
+      response = await fetchResults(fallbackQuery, lookback, maxResults);
+    }
+
+    lastResults = response.results || [];
     populateAgencyFilter(lastResults);
     applyFilters();
+    updateSession({
+      selections: {
+        intent: currentIntent,
+        usecase: currentUseCase,
+        scenario: getScenario() ? getScenario().label : '',
+        qualifiers: builderQualifiers
+      },
+      extracted_keywords: searchKeywords,
+      search_params: {
+        lookback_days: lookback,
+        max_results: maxResults,
+        doc_type: docTypeEl.value,
+        sort: sortByEl.value,
+        agency: agencyFilterEl.value
+      },
+      results: lastFiltered
+    });
   } catch (err) {
-    statusEl.textContent = `Error: ${err.message}`;
+    showError(`Error: ${err.message}`);
   } finally {
     searchBtn.disabled = false;
     document.body.classList.remove('loading');
@@ -1223,10 +1380,13 @@ const doSearch = async () => {
 
 const buildSummary = () => {
   const q = questionEl.value.trim() || '(no question entered)';
-  const top = lastFiltered.slice(0, 3);
+  const shortlist = Object.values(loadShortlist());
+  const top = (shortlist.length ? shortlist : lastFiltered).slice(0, 5);
   const lines = [];
   lines.push(`Intent: ${INTENT_DATA[currentIntent].label}`);
   lines.push(`Use-case: ${USE_CASES[currentUseCase].label}`);
+  lines.push(`Scenario: ${getScenario() ? getScenario().label : 'N/A'}`);
+  lines.push(`Lookback days: ${lookbackEl.value}`);
   lines.push(`Question: ${q}`);
   lines.push('Top results:');
   if (top.length === 0) {
@@ -1282,6 +1442,14 @@ const persistSettings = () => {
     situationScenario: situationScenarioEl.value
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  updateSession({
+    selections: {
+      intent: currentIntent,
+      usecase: currentUseCase,
+      scenario: getScenario() ? getScenario().label : '',
+      qualifiers: builderQualifiers
+    }
+  });
 };
 
 const loadSettings = () => {
@@ -1329,10 +1497,65 @@ const resetAll = () => {
   builderQualifiers = [];
   statusEl.textContent = '';
   resultsEl.innerHTML = '';
+  keywordDisplayEl.textContent = '';
+  noResultsHelpEl.classList.add('hidden');
   lastTags = [];
   selectDefaultScenario();
   updateActionPlan([]);
   persistSettings();
+};
+
+const loadSession = () => {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : {
+      timestamp: new Date().toISOString(),
+      selections: {},
+      extracted_keywords: [],
+      search_params: {},
+      results: [],
+      clicked_urls: [],
+      shortlisted_items: [],
+      user_notes: ''
+    };
+  } catch {
+    return {
+      timestamp: new Date().toISOString(),
+      selections: {},
+      extracted_keywords: [],
+      search_params: {},
+      results: [],
+      clicked_urls: [],
+      shortlisted_items: [],
+      user_notes: ''
+    };
+  }
+};
+
+const saveSession = (session) => {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+};
+
+const updateSession = (updates) => {
+  const session = loadSession();
+  const merged = { ...session, ...updates };
+  merged.timestamp = new Date().toISOString();
+  saveSession(merged);
+  return merged;
+};
+
+const recordClick = (url) => {
+  if (!url) return;
+  const session = loadSession();
+  const clicked = new Set(session.clicked_urls || []);
+  clicked.add(url);
+  updateSession({ clicked_urls: [...clicked] });
+};
+
+const showToast = (message) => {
+  toastEl.textContent = message;
+  toastEl.classList.remove('hidden');
+  setTimeout(() => toastEl.classList.add('hidden'), 1600);
 };
 
 const qualifierLabel = (q) => {
@@ -1448,6 +1671,9 @@ triageToggleEl.addEventListener('change', (e) => {
   document.body.classList.toggle('triage', e.target.checked);
   persistSettings();
 });
+sessionNotesEl.addEventListener('input', () => {
+  updateSession({ user_notes: sessionNotesEl.value || '' });
+});
 
 searchBtn.addEventListener('click', doSearch);
 questionEl.addEventListener('keydown', (e) => {
@@ -1472,8 +1698,30 @@ situationScenarioEl.addEventListener('change', persistSettings);
 
 copyBtn.addEventListener('click', copySummary);
 exportFeedbackBtn.addEventListener('click', () => {
-  const data = loadFeedback();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const session = updateSession({
+    selections: {
+      intent: currentIntent,
+      usecase: currentUseCase,
+      scenario: getScenario() ? getScenario().label : '',
+      qualifiers: builderQualifiers
+    },
+    extracted_keywords: (keywordDisplayEl.textContent || '').replace('Search keywords: ', '').split(', ').filter(Boolean),
+    search_params: {
+      lookback_days: lookbackEl.value,
+      max_results: maxResultsEl.value,
+      doc_type: docTypeEl.value,
+      sort: sortByEl.value,
+      agency: agencyFilterEl.value
+    },
+    results: lastFiltered,
+    shortlisted_items: Object.values(loadShortlist()),
+    user_notes: sessionNotesEl.value || ''
+  });
+  const payload = {
+    session,
+    feedback: loadFeedback()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -1505,3 +1753,8 @@ updateActionPlan([]);
 renderResources();
 renderShortlist();
 allowScenarioDefaults = true;
+const session = loadSession();
+if (session.user_notes) sessionNotesEl.value = session.user_notes;
+if (session.extracted_keywords && session.extracted_keywords.length) {
+  showKeywords(session.extracted_keywords);
+}
