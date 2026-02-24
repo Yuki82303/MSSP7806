@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PA Navigator</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <div class="banner">
+        Verification required: confirm details before advising residents or issuing guidance.
+      </div>
+      <header class="header">
+        <div>
+          <div class="eyebrow">PA Navigator</div>
+          <h1>Policy search for Pennsylvania agency staff.</h1>
+          <p class="subhead">3-step wizard to scan Federal Register documents and decide next actions.</p>
+        </div>
+        <div class="header-actions">
+          <button id="briefBtn" class="ghost">Generate 2-minute brief</button>
+          <button id="exportFeedbackBtn" class="ghost">Export feedback</button>
+          <button id="copyBtn" class="ghost">Copy summary</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="panel main">
+          <div class="steps">
+            <div class="step">
+              <div class="step-title">Step 1 · Choose intent</div>
+              <div id="intentOptions" class="intent-grid">
+                <button class="chip selected" data-intent="policy">Policy Updates</button>
+                <button class="chip" data-intent="eligibility">Eligibility</button>
+                <button class="chip" data-intent="documents">Documents</button>
+                <button class="chip" data-intent="nextsteps">Next Steps</button>
+              </div>
+              <div class="step-subtitle">Use-case for Pennsylvania agency staff</div>
+              <div id="useCaseOptions" class="intent-grid">
+                <button class="chip selected" data-usecase="resident">Resident Services</button>
+                <button class="chip" data-usecase="safetynet">Safety Net</button>
+                <button class="chip" data-usecase="procurement">Procurement &amp; Compliance</button>
+              </div>
+              <div class="step-subtitle">Scenario</div>
+              <div id="scenarioOptions" class="intent-grid"></div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">Step 2 · Ask a focused question</div>
+              <div class="builder">
+                <div class="builder-title">Situation Builder</div>
+                <div class="builder-row">
+                  <label>
+                    Scenario
+                    <select id="situationScenario">
+                      <option value="policy">Policy signal</option>
+                      <option value="benefits">Benefits eligibility</option>
+                      <option value="procurement">Procurement / vendor</option>
+                      <option value="civilrights">Civil rights / bias</option>
+                      <option value="privacy">Privacy / security</option>
+                    </select>
+                  </label>
+                  <div class="builder-qualifiers">
+                    <label class="check">
+                      <input type="checkbox" value="resident_impact" />
+                      Resident impact
+                    </label>
+                    <label class="check">
+                      <input type="checkbox" value="workflow_impact" />
+                      Workflow impact
+                    </label>
+                    <label class="check">
+                      <input type="checkbox" value="vendor_involved" />
+                      Vendor involved
+                    </label>
+                    <label class="check">
+                      <input type="checkbox" value="legal_risk" />
+                      High legal risk
+                    </label>
+                    <label class="check">
+                      <input type="checkbox" value="time_sensitive" />
+                      Time-sensitive
+                    </label>
+                  </div>
+                  <button id="buildQuestionBtn" class="ghost">Build question</button>
+                </div>
+              </div>
+              <div class="question-row">
+                <input id="question" type="text" placeholder="Type your question..." />
+                <div class="question-actions">
+                  <button id="searchBtn">Search</button>
+                  <button id="resetBtn" class="ghost">Clear / Reset</button>
+                </div>
+              </div>
+              <div class="suggestions" id="suggestions"></div>
+
+              <div class="filters">
+                <label>
+                  Lookback days
+                  <input id="lookback" type="number" min="1" max="365" value="30" />
+                </label>
+                <label>
+                  Max results
+                  <input id="maxResults" type="number" min="1" max="100" value="20" />
+                </label>
+                <label>
+                  Document type
+                  <select id="docType">
+                    <option value="">All</option>
+                    <option value="Rule">Rule</option>
+                    <option value="Proposed Rule">Proposed Rule</option>
+                    <option value="Notice">Notice</option>
+                    <option value="Presidential Document">Presidential Doc</option>
+                  </select>
+                </label>
+                <label>
+                  Sort
+                  <select id="sortBy">
+                    <option value="recent">Most recent</option>
+                    <option value="relevance">Most relevant</option>
+                  </select>
+                </label>
+                <label>
+                  Agency
+                  <select id="agencyFilter">
+                    <option value="">All agencies</option>
+                  </select>
+                </label>
+                <label class="toggle">
+                  Triage view
+                  <input id="triageToggle" type="checkbox" />
+                </label>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">Step 3 · Results</div>
+              <div id="status" class="status"></div>
+              <div id="results" class="results"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel side">
+          <h2>Action Plan</h2>
+          <div class="action-section">
+            <div class="action-title">Triage</div>
+            <ul id="triageList" class="action-list"></ul>
+          </div>
+          <div class="action-section">
+            <div class="action-title">Who to notify (roles)</div>
+            <ul id="notifyList" class="action-list"></ul>
+          </div>
+          <div class="action-section">
+            <div class="action-title">Next actions</div>
+            <ul id="nextList" class="action-list"></ul>
+          </div>
+          <div class="action-section">
+            <div class="action-title">Shortlist</div>
+            <div id="shortlistEmpty" class="status">No items shortlisted yet.</div>
+            <ul id="shortlistList" class="action-list"></ul>
+          </div>
+        </aside>
+      </section>
+      <section class="panel notes">
+        <details>
+          <summary>Deployment Notes (PA constraints)</summary>
+          <ul class="notes-list">
+            <li>Engage union leadership when workflow changes affect staff duties.</li>
+            <li>Complete privacy impact and data-sharing reviews before launch.</li>
+            <li>Route security assessments through enterprise risk management.</li>
+            <li>Confirm approvals from program, legal, and communications owners.</li>
+            <li>Document change management and training plans for frontline teams.</li>
+          </ul>
+        </details>
+      </section>
+      <section class="panel resources">
+        <div class="resources-header">
+          <h2>PA Resource Directory</h2>
+          <input id="resourceFilter" type="text" placeholder="Search resources..." />
+        </div>
+        <div id="resourceList" class="resource-list"></div>
+      </section>
+    </main>
+
+    <div id="briefModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="briefTitle">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="briefTitle">2-minute brief</h3>
+          <button id="briefClose" class="ghost">Close</button>
+        </div>
+        <div class="modal-body">
+          <pre id="briefText" class="brief-text"></pre>
+        </div>
+        <div class="modal-footer">
+          <button id="briefCopy" class="ghost">Copy brief</button>
+          <button id="briefDownloadTxt" class="ghost">Download .txt</button>
+          <button id="briefDownloadMd" class="ghost">Download .md</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
