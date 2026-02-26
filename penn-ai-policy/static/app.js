@@ -993,7 +993,7 @@ const renderResources = (filterText = '') => {
       if (r.parentAgency) {
         const parent = document.createElement('div');
         parent.className = 'resource-parent';
-        parent.textContent = `Part of: ${r.parentAgency.name}`;
+        parent.textContent = `Hosted under: ${r.parentAgency.name} (parent site)`;
         card.appendChild(parent);
 
         const helper = document.createElement('div');
