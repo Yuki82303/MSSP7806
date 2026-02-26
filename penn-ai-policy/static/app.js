@@ -486,120 +486,145 @@ const SCENARIO_KEYWORDS = {
 
 const RESOURCE_DIRECTORY = [
   {
+    id: 'pa-ogc',
+    title: 'PA Office of General Counsel',
+    description: 'Legal review and policy interpretation support.',
     category: 'Policy & Legal',
-    agency: 'PA Office of General Counsel',
-    purpose: 'Legal review and policy interpretation support.',
-    url: 'https://www.ogc.pa.gov/',
+    url: 'https://www.pa.gov/agencies/ogc',
+    linkType: 'direct',
     nextSteps: [
       'Request legal review for policy interpretation.',
       'Document legal guidance and required changes.'
     ]
   },
   {
+    id: 'pa-governor',
+    title: 'PA Governor’s Office',
+    description: 'Statewide policy directives and executive guidance.',
     category: 'Policy & Legal',
-    agency: 'PA Governor’s Office',
-    purpose: 'Statewide policy directives and executive guidance.',
     url: 'https://www.governor.pa.gov/',
+    linkType: 'direct',
     nextSteps: [
       'Check for relevant executive guidance.',
       'Align agency actions with statewide policy.'
     ]
   },
   {
+    id: 'pa-oa',
+    title: 'PA Office of Administration',
+    description: 'Enterprise policy, data governance, and IT standards.',
     category: 'Data & Privacy',
-    agency: 'PA Office of Administration',
-    purpose: 'Enterprise policy, data governance, and IT standards.',
-    url: 'https://www.oa.pa.gov/',
+    url: 'https://www.pa.gov/agencies/oa',
+    linkType: 'direct',
     nextSteps: [
       'Validate data governance requirements.',
       'Confirm enterprise IT standards for implementation.'
     ]
   },
   {
+    id: 'pa-it-security',
+    title: 'Pennsylvania IT Security',
+    description: 'Security policy and technology safeguards for Commonwealth systems.',
     category: 'Data & Privacy',
-    agency: 'Pennsylvania IT Security',
-    purpose: 'Security policies, risk management, and standards.',
-    url: 'https://www.oa.pa.gov/it/Pages/default.aspx',
+    url: 'https://www.pa.gov/security-policy',
+    linkType: 'direct',
     nextSteps: [
       'Initiate security assessment and risk review.',
       'Document mitigation steps and approvals.'
     ]
   },
   {
+    id: 'pa-dhs',
+    title: 'PA Department of Human Services',
+    description: 'Program guidance for benefits, eligibility, and services.',
     category: 'Benefits & Human Services',
-    agency: 'PA Department of Human Services',
-    purpose: 'Program guidance for benefits, eligibility, and services.',
-    url: 'https://www.dhs.pa.gov/',
+    url: 'https://www.pa.gov/agencies/dhs',
+    linkType: 'direct',
     nextSteps: [
       'Confirm program guidance alignment.',
       'Update eligibility or service guidance materials.'
     ]
   },
   {
+    id: 'pa-aging',
+    title: 'PA Department of Aging',
+    description: 'Guidance for aging services and program eligibility.',
     category: 'Benefits & Human Services',
-    agency: 'PA Department of Aging',
-    purpose: 'Guidance for aging services and program eligibility.',
-    url: 'https://www.aging.pa.gov/',
+    url: 'https://www.pa.gov/agencies/aging',
+    linkType: 'direct',
     nextSteps: [
       'Check for impacts to aging programs.',
       'Coordinate updates with program owners.'
     ]
   },
   {
+    id: 'pa-phrc',
+    title: 'PA Human Relations Commission',
+    description: 'Civil rights compliance and nondiscrimination guidance.',
     category: 'Civil Rights & Access',
-    agency: 'PA Human Relations Commission',
-    purpose: 'Civil rights compliance and nondiscrimination guidance.',
-    url: 'https://www.phrc.pa.gov/',
+    url: 'https://www.pa.gov/agencies/phrc',
+    linkType: 'direct',
     nextSteps: [
       'Assess civil rights implications.',
       'Update nondiscrimination and accessibility checks.'
     ]
   },
   {
+    id: 'pa-oppd',
+    title: 'PA Office for People With Disabilities',
+    description: 'Disability policy coordination and accessibility advocacy.',
     category: 'Civil Rights & Access',
-    agency: 'PA Office for People With Disabilities',
-    purpose: 'Accessibility and disability services guidance.',
-    url: 'https://www.dhs.pa.gov/Services/Disabilities-Aging/Pages/Office-for-People-With-Disabilities.aspx',
+    url: 'https://www.governor.pa.gov/',
+    parentAgency: { name: 'Office of the Governor', url: 'https://www.governor.pa.gov/' },
+    linkType: 'parent',
     nextSteps: [
       'Validate accessibility requirements.',
       'Coordinate disability services considerations.'
     ]
   },
   {
+    id: 'pa-dgs',
+    title: 'PA Department of General Services',
+    description: 'Procurement policy, contracts, and vendor guidance.',
     category: 'Procurement & Vendor',
-    agency: 'PA Department of General Services',
-    purpose: 'Procurement policy, contracts, and vendor guidance.',
-    url: 'https://www.dgs.pa.gov/',
+    url: 'https://www.pa.gov/agencies/dgs',
+    linkType: 'direct',
     nextSteps: [
       'Check procurement policy impacts.',
       'Update vendor contract requirements.'
     ]
   },
   {
+    id: 'pa-bdisbo',
+    title: 'PA Office of Small Business Opportunities (BDISBO)',
+    description: 'Small, diverse, and veteran business contracting support.',
     category: 'Procurement & Vendor',
-    agency: 'PA Office of Small Business Opportunities',
-    purpose: 'Supplier diversity and vendor participation guidance.',
-    url: 'https://www.dgs.pa.gov/Small,%20Diverse%20Business%20and%20Veteran%20Business/Pages/default.aspx',
+    url: 'https://www.pa.gov/agencies/dgs/programs-and-services/disbo.html',
+    linkType: 'direct',
     nextSteps: [
       'Assess supplier diversity impacts.',
       'Update vendor outreach plans.'
     ]
   },
   {
+    id: 'pa-dli',
+    title: 'PA Department of Labor & Industry',
+    description: 'Workforce policy, labor standards, and compliance.',
     category: 'Labor & Workforce',
-    agency: 'PA Department of Labor & Industry',
-    purpose: 'Workforce policy, labor standards, and compliance.',
-    url: 'https://www.dli.pa.gov/',
+    url: 'https://www.pa.gov/agencies/dli',
+    linkType: 'direct',
     nextSteps: [
       'Review labor standards implications.',
       'Coordinate with HR and workforce teams.'
     ]
   },
   {
+    id: 'pa-open-records',
+    title: 'PA Office of Open Records',
+    description: 'Public records and transparency guidance.',
     category: 'Transparency & Records',
-    agency: 'PA Office of Open Records',
-    purpose: 'Public records and transparency guidance.',
     url: 'https://www.openrecords.pa.gov/',
+    linkType: 'direct',
     nextSteps: [
       'Verify record retention and disclosure obligations.',
       'Update public records response procedures.'
@@ -872,9 +897,9 @@ const updateActionPlan = (tags) => {
 const appendResourceSteps = (resource) => {
   builderQualifiers = builderQualifiers || [];
   const extra = {
-    triage: [`Review ${resource.agency} guidance for this issue.`],
-    notify: [`Coordinate with ${resource.agency} liaison.`],
-    next: resource.nextSteps
+    triage: [`Review ${resource.title} guidance for this issue.`],
+    notify: [`Coordinate with ${resource.title} liaison.`],
+    next: resource.nextSteps || []
   };
   const uniq = (arr) => [...new Set(arr)];
   const triage = uniq([...(Array.from(triageListEl.querySelectorAll('li')).map((li) => li.textContent)), ...extra.triage]);
@@ -906,7 +931,8 @@ const renderResources = (filterText = '') => {
   const q = filterText.trim().toLowerCase();
   const groups = {};
   for (const r of RESOURCE_DIRECTORY) {
-    const hay = `${r.category} ${r.agency} ${r.purpose}`.toLowerCase();
+    const parentName = r.parentAgency ? r.parentAgency.name : '';
+    const hay = `${r.category} ${r.title} ${r.description} ${parentName}`.toLowerCase();
     if (q && !hay.includes(q)) continue;
     if (!groups[r.category]) groups[r.category] = [];
     groups[r.category].push(r);
@@ -922,51 +948,65 @@ const renderResources = (filterText = '') => {
     return;
   }
 
-  for (const cat of categories) {
-    const section = document.createElement('div');
-    section.className = 'resource-category';
-    const h = document.createElement('h3');
-    h.textContent = cat;
-    section.appendChild(h);
+  categories.forEach((cat, index) => {
+    const details = document.createElement('details');
+    details.className = 'resource-category';
+    if (index < 2) details.open = true;
+    const summary = document.createElement('summary');
+    summary.textContent = cat;
+    details.appendChild(summary);
+
     for (const r of groups[cat]) {
       const card = document.createElement('div');
       card.className = 'resource-card';
+
       const title = document.createElement('div');
-      title.textContent = r.agency;
+      title.textContent = r.title;
+
       const meta = document.createElement('div');
       meta.className = 'resource-meta';
-      meta.textContent = r.purpose;
+      meta.textContent = r.description;
+
       const actions = document.createElement('div');
       actions.className = 'resource-actions';
+
       const link = document.createElement('a');
       link.href = r.url;
       link.target = '_blank';
-      link.rel = 'noopener';
+      link.rel = 'noopener noreferrer';
       link.textContent = 'Open';
       link.addEventListener('click', () => recordClick(link.href));
+
       const useBtn = document.createElement('button');
       useBtn.type = 'button';
-      useBtn.textContent = 'Use this resource';
+      useBtn.textContent = r.linkType === 'parent' ? 'Open (Parent Agency)' : 'Open resource';
       useBtn.addEventListener('click', () => appendResourceSteps(r));
-      useBtn.addEventListener('click', async () => {
-        window.open(r.url, '_blank', 'noopener');
-        try {
-          await navigator.clipboard.writeText(r.url);
-          showToast('Link opened + copied');
-        } catch {
-          showToast('Link opened');
-        }
+      useBtn.addEventListener('click', () => {
+        window.open(r.url, '_blank', 'noopener,noreferrer');
+        showToast('Opened resource in a new tab.');
         recordClick(r.url);
       });
+
       actions.appendChild(link);
       actions.appendChild(useBtn);
       card.appendChild(title);
+      if (r.parentAgency) {
+        const parent = document.createElement('div');
+        parent.className = 'resource-parent';
+        parent.textContent = `Part of: ${r.parentAgency.name}`;
+        card.appendChild(parent);
+
+        const helper = document.createElement('div');
+        helper.className = 'resource-helper';
+        helper.textContent = 'This office is hosted under the parent agency site.';
+        card.appendChild(helper);
+      }
       card.appendChild(meta);
       card.appendChild(actions);
-      section.appendChild(card);
+      details.appendChild(card);
     }
-    resourceListEl.appendChild(section);
-  }
+    resourceListEl.appendChild(details);
+  });
 };
 
 const renderResults = (items) => {

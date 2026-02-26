@@ -14,16 +14,16 @@
       <section class="howto panel">
         <h2>How to use</h2>
         <ul class="howto-list">
-          <li>Pick intent, use-case, and scenario to tailor keywords.</li>
-          <li>Generate keywords, then run a search and shortlist high-impact items.</li>
-          <li>Use the Action Plan and brief to coordinate review and next steps.</li>
+          <li>Pick intent and scenario.</li>
+          <li>Generate keywords and search.</li>
+          <li>Review results, shortlist, and follow the Action Plan.</li>
         </ul>
       </section>
       <header class="header">
         <div>
           <div class="eyebrow">PA Navigator</div>
           <h1>Policy search for Pennsylvania agency staff.</h1>
-          <p class="subhead">3-step wizard to scan Federal Register documents and decide next actions.</p>
+          <p class="subhead">This prototype helps PA agency staff scan Federal Register notices, find relevant updates, and decide next actions for triage and coordination.</p>
         </div>
         <div class="header-actions">
           <button id="briefBtn" class="ghost">Generate 2-minute brief</button>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="step">
-              <div class="step-title">Step 2 · Ask a focused question</div>
+              <div class="step-title">Step 2 · Keywords</div>
               <div class="builder">
                 <div class="builder-title">Situation Builder</div>
                 <div class="builder-row">
@@ -100,6 +100,7 @@
                   <button id="resetBtn" class="ghost">Clear / Reset</button>
                 </div>
               </div>
+              <div class="field-hint">Tip: If you get no results, try shorter keywords (2–5 words) and remove extra details.</div>
               <div id="keywordDisplay" class="keywords"></div>
               <div class="suggestions" id="suggestions"></div>
 
@@ -147,7 +148,7 @@
               <div id="status" class="status"></div>
               <div id="results" class="results"></div>
               <div id="noResultsHelp" class="helper hidden">
-                Why no results? Try increasing lookback days, changing document type, or simplifying keywords.
+                No matches. Try shorter keywords or broaden the lookback window.
               </div>
             </div>
           </div>
@@ -191,6 +192,7 @@
           <h2>PA Resource Directory</h2>
           <input id="resourceFilter" type="text" placeholder="Search resources..." />
         </div>
+        <div class="resource-note">Resources are grouped by function (not organizational hierarchy). Some offices are hosted under a parent agency site.</div>
         <div id="resourceList" class="resource-list"></div>
       </section>
       <section class="panel notes">
